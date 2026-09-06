@@ -1,0 +1,635 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minecraft Skin Walking GIF</title>
+
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+canvas {
+    display: block;
+    background: transparent;
+}
+</style>
+
+</head>
+
+<body>
+
+<canvas id="skinCanvas" width="345" height="460"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/skinview3d@3.4.2/bundles/skinview3d.bundle.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    // ==========================================
+    // CANVAS
+    // ==========================================
+
+    const canvas = document.getElementById("skinCanvas");
+
+
+    // ==========================================
+    // MINECRAFT SKIN
+    // ==========================================
+
+    const skin =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAn1BMVEUAAAAZGRobEQomJicsKCcuGxQuHRExGgoyGRUyMTMyMjQzMzQ0NiY5NTM/PUA/P0FAJRxAQEFBKRhCRTFEIh1GJQ5GQT9IKiFIQD9MSU1NTU5OOx5QVDtSLyRUNR9WKyVaNClcRTVgSSVnQSZoNC1sPjFtUT5ubm5yVyx6PTV6TS17e3t8XUe+f2fGj3rMRUTOnozOs6LSWVjXbW3XwbNcoNfoAAAAAXRSTlMAQObYZgAAAsFJREFUWMPtl3F7ojAMxtGCw56cok6nGyobQ92wOm/f/7Ndkqa1okym99fd/dZHUmxe09DSzPOYZgnvuzi+St0moBQqXC+giOsFFPMvCTQvcFlg1pxBO3iYPl/twBlxKmAGO/5HIt6L9wINBvZn0Dzbt/cvCbx5b9AggBY107dXR4CWcLWA12p5Xwj0P++Vuv/sV02BZz87mYIZ3P+4U+ruo1+ZxLrP/6ptna5WKz/yI9MXDUJIxtyXQmRqUyEQRdHDbQJ+dFsED5F/XQQpsrKkAiH/tjjYJPZLCkY6AjlyEMjNGNEWE+Egt3urIGNHoEBWz4/E86qgmNH/50Qam3y223gf61vxRQEp2/uJPCKO4228XWjicg6KR6ZIefyk5C/J8ZVZlAXytMBUFGB0Ee3TdW1yHHSIwWs5iWnOpHmIoFu3G7KNhAOkwwwcgSRAPwgiD5IgSYIhgm5hOGQbGT4hc31r/uQIBL2kF/SggXMCxtzSEHOHDDECmSMwSgJwRt9kBKs5MjOfdsWPQxa6slLAH/kj9PRHsBvAhq8RuODf3Pay9RoEdsSRgPWMtJCNAH9WJxM+OQK1IVTm/af8SqiwzyDsx2XatwqcI6ZX0dH7pJL9Of8Tg/dz/RxUJDH9c88BjDD0Qt0hw9q1H6QZH1qfMLwurMZNk5JTx4aHJ29fr+t19Xe+N/LL96Z8JOql880I8IxcAnYBC7nZZX+9QGoWk6kTTN3AhzMf1M6mrtrYpk4wdQMf7oQsCchzAuaYN8f+GGGB8dh4xiebulKAjvWxZrH4Mgc6DaZOMHWDrgcWXB7U2NemTjB1Ax3nXFcMOjXeC7lbMMCFCwIuD2qsgWUJLgi4PKghoH841UnMCz2FAR2tWfUUioP5DiyLdEnXayJAp3dqSxKh/wGgPqHyQNV4PdAvU9MRUEGw01PYnSm0fwPOvJTCBtgsMQAAAABJRU5ErkJggg==";
+
+
+    // ==========================================
+    // VIEWER
+    // ==========================================
+
+    const viewer = new skinview3d.SkinViewer({
+        canvas: canvas,
+        width: 600,
+        height: 1000,
+        skin: skin,
+        preserveDrawingBuffer: true
+    });
+
+
+    // Transparent background
+    viewer.background = null;
+
+    if (
+        viewer.renderer &&
+        typeof viewer.renderer.setClearColor === "function"
+    ) {
+        viewer.renderer.setClearColor(0x000000, 0);
+    }
+
+    if (
+        viewer.renderer &&
+        typeof viewer.renderer.setClearAlpha === "function"
+    ) {
+        viewer.renderer.setClearAlpha(0);
+    }
+
+
+    viewer.autoRotate = false;
+
+    viewer.controls.enableRotate = false;
+    viewer.controls.enableZoom = false;
+    viewer.controls.enablePan = false;
+
+    viewer.zoom = 0.85;
+    viewer.fov = 70;
+
+    viewer.camera.position.y = 7.5;
+
+
+    // ==========================================
+    // WALKING
+    // ==========================================
+
+    const walking = new skinview3d.WalkingAnimation();
+
+    walking.speed = 0.8;
+    walking.headBobbing = false;
+
+    viewer.animation = walking;
+
+
+    // ==========================================
+    // LIGHTING
+    // ==========================================
+
+    viewer.globalLight.intensity = 3;
+    viewer.cameraLight.intensity = 0.6;
+
+
+    // ==========================================
+    // RESIZE
+    // ==========================================
+
+    function resize() {
+
+        const w = Math.min(window.innerWidth * 0.9, 345);
+        const h = Math.min(window.innerHeight * 0.9, 460);
+
+        viewer.width = Math.max(160, Math.floor(w));
+        viewer.height = Math.max(220, Math.floor(h));
+    }
+
+    window.addEventListener("resize", resize);
+
+    resize();
+
+
+    // ==========================================
+    // GIF SETTINGS
+    // ==========================================
+
+    const FPS = 24;
+    const DURATION = 2;
+    const TOTAL_FRAMES = FPS * DURATION;
+    const FRAME_DELAY = 1000 / FPS;
+
+    const WORKER_URL =
+        "https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js";
+
+
+    // ==========================================
+    // GIF CAMERA
+    //
+    // These move the PLAYER inside the GIF.
+    //
+    // They do NOT rotate the Minecraft player.
+    //
+    // Positive X = right
+    // Negative X = left
+    //
+    // Positive Y = down
+    // Negative Y = up
+    // ==========================================
+
+    const GIF_CAMERA_X = -43.125;
+    const GIF_CAMERA_Y = -43.125;
+
+
+    // ==========================================
+    // ALPHA THRESHOLD
+    //
+    // GIF transparency is binary.
+    //
+    // Pixels below this alpha value become
+    // completely transparent.
+    //
+    // Pixels at or above this value remain
+    // completely visible.
+    //
+    // This prevents the transparent edge from
+    // picking up a colored halo.
+    // ==========================================
+
+    const ALPHA_THRESHOLD = 128;
+
+
+    // ==========================================
+    // GIF WORKER
+    // ==========================================
+
+    async function createWorkerURL() {
+
+        console.log("Loading GIF encoder worker...");
+
+        const response = await fetch(WORKER_URL);
+
+        if (!response.ok) {
+            throw new Error(
+                "Could not load GIF worker: HTTP " +
+                response.status
+            );
+        }
+
+        const workerCode = await response.text();
+
+        const workerBlob = new Blob(
+            [workerCode],
+            {
+                type: "application/javascript"
+            }
+        );
+
+        return URL.createObjectURL(workerBlob);
+    }
+
+
+    // ==========================================
+    // CAPTURE FRAME
+    // ==========================================
+
+    function captureCanvasImage() {
+
+        return new Promise(function (resolve, reject) {
+
+            try {
+
+                if (typeof viewer.render === "function") {
+                    viewer.render();
+                }
+
+
+                const dataURL =
+                    canvas.toDataURL("image/png");
+
+
+                const image = new Image();
+
+
+                image.onload = function () {
+
+                    // ==================================
+                    // GIF CAMERA CANVAS
+                    // ==================================
+
+                    const gifCamera =
+                        document.createElement("canvas");
+
+                    gifCamera.width = 345;
+                    gifCamera.height = 460;
+
+
+                    const ctx =
+                        gifCamera.getContext("2d", {
+                            alpha: true
+                        });
+
+
+                    // ==================================
+                    // COMPLETELY TRANSPARENT CANVAS
+                    // ==================================
+
+                    ctx.clearRect(
+                        0,
+                        0,
+                        345,
+                        460
+                    );
+
+
+                    // ==================================
+                    // MOVE THE CAPTURED PLAYER
+                    // ==================================
+
+                    ctx.drawImage(
+                        image,
+                        GIF_CAMERA_X,
+                        GIF_CAMERA_Y
+                    );
+
+
+                    // ==================================
+                    // PROCESS ALPHA
+                    //
+                    // Remove all partially transparent
+                    // pixels so GIF.js doesn't create
+                    // a colored halo around the player.
+                    // ==================================
+
+                    const imageData =
+                        ctx.getImageData(
+                            0,
+                            0,
+                            345,
+                            460
+                        );
+
+                    const pixels =
+                        imageData.data;
+
+
+                    for (
+                        let i = 0;
+                        i < pixels.length;
+                        i += 4
+                    ) {
+
+                        const alpha =
+                            pixels[i + 3];
+
+
+                        if (alpha < ALPHA_THRESHOLD) {
+
+                            // Fully transparent
+                            pixels[i] = 0;
+                            pixels[i + 1] = 0;
+                            pixels[i + 2] = 0;
+                            pixels[i + 3] = 0;
+
+                        } else {
+
+                            // Fully opaque
+                            pixels[i + 3] = 255;
+                        }
+                    }
+
+
+                    ctx.putImageData(
+                        imageData,
+                        0,
+                        0
+                    );
+
+
+                    resolve(gifCamera);
+                };
+
+
+                image.onerror = function () {
+
+                    reject(
+                        new Error(
+                            "Could not load captured canvas image."
+                        )
+                    );
+                };
+
+
+                image.src = dataURL;
+
+
+            } catch (error) {
+
+                reject(error);
+            }
+        });
+    }
+
+
+    // ==========================================
+    // RECORD GIF
+    // ==========================================
+
+    async function recordGIF() {
+
+        console.log("Starting GIF recording...");
+
+        let workerURL = null;
+
+
+        try {
+
+            workerURL =
+                await createWorkerURL();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Could not start the GIF encoder worker.\n\n" +
+                "Make sure you are connected to the internet."
+            );
+
+            return;
+        }
+
+
+        const gif = new GIF({
+
+            workers: 2,
+
+            quality: 5,
+
+            width: 345,
+            height: 460,
+
+            repeat: 0,
+
+            // Transparent color used by GIF.js.
+            //
+            // Because the actual transparent pixels
+            // are black with alpha 0, GIF.js will use
+            // this color as its transparent palette
+            // entry.
+            transparent: 0x000000,
+
+            workerScript: workerURL
+        });
+
+
+        // ==========================================
+        // PROGRESS
+        // ==========================================
+
+        gif.on("progress", function (progress) {
+
+            console.log(
+                "GIF rendering: " +
+                Math.round(progress * 100) +
+                "%"
+            );
+
+        });
+
+
+        // ==========================================
+        // FINISHED
+        // ==========================================
+
+        gif.on("finished", function (blob) {
+
+            console.log("GIF finished!");
+
+            const url =
+                URL.createObjectURL(blob);
+
+            const link =
+                document.createElement("a");
+
+            link.href = url;
+
+            link.download =
+                "minecraft_skin_walking.gif";
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            document.body.removeChild(link);
+
+
+            setTimeout(function () {
+
+                URL.revokeObjectURL(url);
+
+                if (workerURL) {
+                    URL.revokeObjectURL(workerURL);
+                }
+
+            }, 5000);
+
+
+            console.log(
+                "Downloaded minecraft_skin_walking.gif"
+            );
+
+        });
+
+
+        // ==========================================
+        // ABORT
+        // ==========================================
+
+        gif.on("abort", function () {
+
+            console.error(
+                "GIF rendering aborted."
+            );
+
+            if (workerURL) {
+                URL.revokeObjectURL(workerURL);
+            }
+
+        });
+
+
+        // ==========================================
+        // ERROR
+        // ==========================================
+
+        gif.on("error", function (error) {
+
+            console.error(
+                "GIF error:",
+                error
+            );
+
+        });
+
+
+        // ==========================================
+        // RECORD FRAMES
+        // ==========================================
+
+        let frame = 0;
+
+
+        async function captureFrame() {
+
+            if (frame >= TOTAL_FRAMES) {
+
+                console.log(
+                    "Finished recording!"
+                );
+
+                console.log(
+                    "Rendering GIF..."
+                );
+
+                gif.render();
+
+                return;
+            }
+
+
+            try {
+
+                const frameImage =
+                    await captureCanvasImage();
+
+
+                gif.addFrame(
+                    frameImage,
+                    {
+                        copy: true,
+                        delay: FRAME_DELAY
+                    }
+                );
+
+
+                frame++;
+
+
+                console.log(
+                    "Recording frame " +
+                    frame +
+                    " / " +
+                    TOTAL_FRAMES
+                );
+
+
+                setTimeout(
+                    captureFrame,
+                    FRAME_DELAY
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Frame capture failed:",
+                    error
+                );
+
+            }
+        }
+
+
+        // ==========================================
+        // START RECORDING
+        // ==========================================
+
+        setTimeout(function () {
+
+            captureFrame();
+
+        }, 1500);
+
+    }
+
+
+    // ==========================================
+    // LOAD SKIN
+    // ==========================================
+
+    async function start() {
+
+        console.log(
+            "Loading Minecraft skin..."
+        );
+
+
+        try {
+
+            await viewer.loadSkin(skin);
+
+            console.log(
+                "Minecraft skin loaded."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Could not load Minecraft skin:",
+                error
+            );
+
+            return;
+        }
+
+
+        setTimeout(function () {
+
+            recordGIF();
+
+        }, 1000);
+    }
+
+
+    // ==========================================
+    // START
+    // ==========================================
+
+    start();
+
+})();
+</script>
+
+</body>
+</html>
+
