@@ -256,7 +256,7 @@ canvas {
     //
     // ==========================================
 
-    const FRAMES = 1000;
+    const FRAMES = 140;
 
     const DURATION = 2;
 
